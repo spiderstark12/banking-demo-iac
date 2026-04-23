@@ -1,0 +1,30 @@
+# 1. This creates the main Amazon Connect "Office" (Instance)
+resource "aws_connect_instance" "banking_connect" {
+  identity_management_type = "CONNECT_MANAGED"
+  inbound_calls_enabled    = true
+  outbound_calls_enabled   = true
+  instance_alias           = "banking-demo-instance-arnav" # A unique name for the link
+}
+
+# 2. This tells Connect where to save call recordings (the S3 bucket you made)
+resource "aws_connect_instance_storage_config" "recordings" {
+  instance_id   = aws_connect_instance.banking_connect.id
+  resource_type = "CALL_RECORDINGS"
+
+  storage_config {
+    storage_type = "S3"
+    s3_config {
+      bucket_name   = aws_s3_bucket.bank_storage.id
+      bucket_prefix = "recordings"
+    }
+  }
+}
+
+# 3. This links your Lex AI bot to the Connect phone system
+resource "aws_connect_bot_association" "lex_link" {
+  instance_id = aws_connect_instance.banking_connect.id
+  lex_v2_bot {
+    # Using a dummy ID for now as requested
+    alias_arn = "arn:aws:lex:us-east-1:123456789012:bot-alias/EXAMPLE/DUMMY" 
+  }
+}

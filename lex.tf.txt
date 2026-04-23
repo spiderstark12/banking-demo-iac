@@ -1,0 +1,36 @@
+# 1. Create the Lex Bot
+resource "aws_lexv2models_bot" "banking_bot" {
+  name                        = "banking-demo-lex-bot"
+  role_arn                    = aws_iam_role.lambda_exec_role.arn
+  data_privacy {
+    child_directed = false
+  }
+  idle_session_ttl_in_seconds = 300
+}
+
+# 2. Create a Locale (Language setting)
+resource "aws_lexv2models_bot_locale" "en_us" {
+  bot_id                           = aws_lexv2models_bot.banking_bot.id
+  bot_version                      = "DRAFT"
+  locale_id                        = "en_US"
+  nlu_intent_confidence_threshold = 0.40
+}
+
+# 3. Create a "Welcome" Intent
+resource "aws_lexv2models_intent" "welcome_intent" {
+  bot_id      = aws_lexv2models_bot.banking_bot.id
+  bot_version = "DRAFT"
+  locale_id   = "en_US"
+  name        = "WelcomeIntent"
+
+  initial_response {
+    initial_response_description = "Greeting the customer"
+    message_group {
+      message {
+        plain_text_message {
+          value = "Hello! Thanks for calling our banking demo service. How can I help you today?"
+        }
+      }
+    }
+  }
+}
