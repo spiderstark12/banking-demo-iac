@@ -1,0 +1,37 @@
+# 1. This creates a "Role" for your Python Lambda
+resource "aws_iam_role" "lambda_exec_role" {
+  name = "banking-demo-lambda-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Action = "sts:AssumeRole"
+      Effect = "Allow"
+      Principal = {
+        Service = "://amazonaws.com"
+      }
+    }]
+  })
+}
+
+# 2. This gives the Lambda permission to write logs (so you can see if it fails)
+resource "aws_iam_role_policy_attachment" "lambda_logs" {
+  role       = aws_iam_role.lambda_exec_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
+
+# 3. This creates a Role for Amazon Connect to talk to S3 and Lex
+resource "aws_iam_role" "connect_role" {
+  name = "banking-demo-connect-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Action = "sts:AssumeRole"
+      Effect = "Allow"
+      Principal = {
+        Service = "://amazonaws.com"
+      }
+    }]
+  })
+}
